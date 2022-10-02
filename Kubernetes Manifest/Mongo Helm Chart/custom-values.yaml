@@ -1,0 +1,11 @@
+auth:
+  enabled: true
+  rootUser: root
+  rootPassword: "31f533114cf82e69"
+
+  usernames: 
+    - user
+  passwords: 
+    - 8e0ee9fce9d2e9d2
+  databases: 
+    - api

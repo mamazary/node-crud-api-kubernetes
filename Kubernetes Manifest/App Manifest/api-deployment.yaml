@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+  namespace: default
+  labels:
+    app: api
+    version: 1.0.0
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: docker.io/mamazary/api-app
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 15
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            initialDelaySeconds: 15
+            httpGet:
+              path: /
+              port: http
+          resources:
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          envFrom:
+          - secretRef:
+              name: api-secret
+          - configMapRef:
+              name: api-configmap
+      imagePullSecrets:
+      - name: registry-credential
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: api
